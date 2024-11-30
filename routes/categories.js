@@ -3,7 +3,6 @@ const router = express.Router();
 const Category = require('../models/Category');
 const { StatusCodes } = require('http-status-codes');
 
-// Pobranie wszystkich kategorii
 router.get('/', async (req, res) => {
     try {
         const categories = await Category.fetchAll();

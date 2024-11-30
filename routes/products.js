@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
 const { StatusCodes } = require('http-status-codes');
+const authenticate = require('../middleware/authenticate');
 
-// Pobranie wszystkich produktów
 router.get('/', async (req, res) => {
     try {
         const products = await Product.fetchAll({ withRelated: ['category'] });
@@ -13,7 +13,6 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Pobranie produktu po ID
 router.get('/:id', async (req, res) => {
     try {
         const product = await Product.where('id', req.params.id).fetch({ withRelated: ['category'] });
@@ -23,11 +22,12 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// Dodanie nowego produktu
-router.post('/', async (req, res) => {
+router.post('/',authenticate,  async (req, res) => {
+    if (req.user.role !== 'PRACOWNIK') {
+        return res.status(StatusCodes.FORBIDDEN).json({ error: 'Brak uprawnień' });
+    }
     const { name, description, unit_price, unit_weight, category_id } = req.body;
 
-    // Walidacja danych
     if (!name || !description || unit_price <= 0 || unit_weight <= 0 || !category_id) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: 'Nieprawidłowe dane produktu' });
     }
@@ -46,11 +46,13 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Aktualizacja produktu
-router.put('/:id', async (req, res) => {
+router.put('/:id',authenticate, async (req, res) => {
+    if (req.user.role !== 'PRACOWNIK') {
+        return res.status(StatusCodes.FORBIDDEN).json({ error: 'Brak uprawnień' });
+    }
+
     const { name, description, unit_price, unit_weight, category_id } = req.body;
 
-    // Walidacja danych
     if (!name || !description || unit_price <= 0 || unit_weight <= 0 || !category_id) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: 'Nieprawidłowe dane produktu' });
     }

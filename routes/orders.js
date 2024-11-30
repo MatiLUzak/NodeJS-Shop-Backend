@@ -4,8 +4,8 @@ const Order = require('../models/Order');
 const OrderStatus = require('../models/OrderStatus');
 const Product = require('../models/Product');
 const { StatusCodes } = require('http-status-codes');
+const authenticate = require('../middleware/authenticate');
 
-// Pobranie wszystkich zamówień
 router.get('/', async (req, res) => {
     try {
         const orders = await Order.fetchAll({ withRelated: ['status', 'products'] });
@@ -15,7 +15,6 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Pobranie zamówień wg statusu
 router.get('/status/:id', async (req, res) => {
     try {
         const orders = await Order.where('status_id', req.params.id).fetchAll({ withRelated: ['status', 'products'] });
@@ -25,23 +24,22 @@ router.get('/status/:id', async (req, res) => {
     }
 });
 
-// Dodanie nowego zamówienia
-router.post('/', async (req, res) => {
+router.post('/',authenticate, async (req, res) => {
+    if (req.user.role !== 'PRACOWNIK') {
+        return res.status(StatusCodes.FORBIDDEN).json({ error: 'Brak uprawnień' });
+    }
     const { user_name, email, phone_number, products } = req.body;
 
-    // Walidacja danych
     if (!user_name || !email || !phone_number || !Array.isArray(products) || products.length === 0) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: 'Nieprawidłowe dane zamówienia' });
     }
 
-    // Walidacja numeru telefonu (przykładowa)
     const phoneRegex = /^[0-9]{9}$/;
     if (!phoneRegex.test(phone_number)) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: 'Nieprawidłowy numer telefonu' });
     }
 
     try {
-        // Sprawdzenie produktów
         for (const item of products) {
             if (!item.product_id || !item.quantity || item.quantity <= 0 || !Number.isInteger(item.quantity)) {
                 return res.status(StatusCodes.BAD_REQUEST).json({ error: 'Nieprawidłowe dane produktów w zamówieniu' });
@@ -53,16 +51,14 @@ router.post('/', async (req, res) => {
             }
         }
 
-        // Utworzenie zamówienia
         const order = await new Order({
             approval_date: null,
-            status_id: 1, // NIEZATWIERDZONE
+            status_id: 1,
             user_name,
             email,
             phone_number,
         }).save();
 
-        // Dodanie produktów do zamówienia
         await order.products().attach(
             products.map((item) => ({
                 product_id: item.product_id,
@@ -76,8 +72,10 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Aktualizacja statusu zamówienia
-router.patch('/:id', async (req, res) => {
+router.patch('/:id',authenticate, async (req, res) => {
+    if (req.user.role !== 'PRACOWNIK') {
+        return res.status(StatusCodes.FORBIDDEN).json({ error: 'Brak uprawnień' });
+    }
     const { status_id } = req.body;
 
     if (!status_id) {
@@ -89,12 +87,10 @@ router.patch('/:id', async (req, res) => {
 
         const currentStatus = order.related('status').get('name');
 
-        // Sprawdzenie możliwości zmiany statusu
         if (currentStatus === 'ANULOWANE') {
             return res.status(StatusCodes.BAD_REQUEST).json({ error: 'Nie można zmienić statusu anulowanego zamówienia' });
         }
 
-        // Przykładowa logika zmiany statusu
         const allowedTransitions = {
             NIEZATWIERDZONE: ['ZATWIERDZONE', 'ANULOWANE'],
             ZATWIERDZONE: ['ZREALIZOWANE', 'ANULOWANE'],

@@ -1,22 +1,25 @@
+require('dotenv').config();
+console.log('JWT_SECRET_KEY:', process.env.JWT_SECRET_KEY);
 const express = require('express');
 const app = express();
 const port = 3000;
 
-// Middleware do parsowania JSON
 app.use(express.json());
 
-// Dołączanie tras
+const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
 const categoryRoutes = require('./routes/categories');
 const orderRoutes = require('./routes/orders');
 const statusRoutes = require('./routes/status');
+const initRoutes = require('./routes/init');
 
 app.use('/products', productRoutes);
 app.use('/categories', categoryRoutes);
 app.use('/orders', orderRoutes);
 app.use('/status', statusRoutes);
+app.use('/', authRoutes);
+app.use('/', initRoutes);
 
-// Obsługa błędów (opcjonalnie)
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ error: 'Coś poszło nie tak!' });

@@ -3,7 +3,6 @@ const router = express.Router();
 const OrderStatus = require('../models/OrderStatus');
 const { StatusCodes } = require('http-status-codes');
 
-// Pobranie wszystkich statusów zamówień
 router.get('/', async (req, res) => {
     try {
         const statuses = await OrderStatus.fetchAll();

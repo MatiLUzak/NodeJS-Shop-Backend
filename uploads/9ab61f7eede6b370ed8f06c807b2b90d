@@ -1,0 +1,16 @@
+[
+    {
+        "name": "Laptop",
+        "description": "Nowoczesny laptop do pracy i rozrywki",
+        "unit_price": 3500.00,
+        "unit_weight": 2.5,
+        "category_id": 1
+    },
+    {
+        "name": "Smartfon",
+        "description": "Smartfon z dużym ekranem",
+        "unit_price": 1200.00,
+        "unit_weight": 0.5,
+        "category_id": 1
+    }
+]
