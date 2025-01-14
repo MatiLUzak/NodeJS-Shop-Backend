@@ -26,7 +26,7 @@ router.post('/',authenticate,  async (req, res) => {
     if (req.user.role !== 'PRACOWNIK') {
         return res.status(StatusCodes.FORBIDDEN).json({ error: 'Brak uprawnień' });
     }
-    const { name, description, unit_price, unit_weight, category_id } = req.body;
+    const { name, quantity, description, unit_price, unit_weight, category_id } = req.body;
 
     if (!name || !description || unit_price <= 0 || unit_weight <= 0 || !category_id) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: 'Nieprawidłowe dane produktu' });
@@ -35,6 +35,7 @@ router.post('/',authenticate,  async (req, res) => {
     try {
         const product = await new Product({
             name,
+            quantity,
             description,
             unit_price,
             unit_weight,
@@ -51,7 +52,7 @@ router.put('/:id',authenticate, async (req, res) => {
         return res.status(StatusCodes.FORBIDDEN).json({ error: 'Brak uprawnień' });
     }
 
-    const { name, description, unit_price, unit_weight, category_id } = req.body;
+    const { name, quantity, description, unit_price, unit_weight, category_id } = req.body;
 
     if (!name || !description || unit_price <= 0 || unit_weight <= 0 || !category_id) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: 'Nieprawidłowe dane produktu' });
@@ -61,6 +62,7 @@ router.put('/:id',authenticate, async (req, res) => {
         const product = await Product.where('id', req.params.id).fetch();
         await product.save({
             name,
+            quantity,
             description,
             unit_price,
             unit_weight,

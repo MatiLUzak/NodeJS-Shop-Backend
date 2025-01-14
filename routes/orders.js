@@ -24,10 +24,7 @@ router.get('/status/:id', async (req, res) => {
     }
 });
 
-router.post('/',authenticate, async (req, res) => {
-    if (req.user.role !== 'PRACOWNIK') {
-        return res.status(StatusCodes.FORBIDDEN).json({ error: 'Brak uprawnień' });
-    }
+router.post('/', async (req, res) => {
     const { user_name, email, phone_number, products } = req.body;
 
     if (!user_name || !email || !phone_number || !Array.isArray(products) || products.length === 0) {

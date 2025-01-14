@@ -1,9 +1,12 @@
 require('dotenv').config();
 console.log('JWT_SECRET_KEY:', process.env.JWT_SECRET_KEY);
 const express = require('express');
+const session = require('express-session');
+const cors = require('cors');
 const app = express();
 const port = 3000;
 
+app.use(cors());
 app.use(express.json());
 
 const authRoutes = require('./routes/auth');
@@ -28,3 +31,10 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
     console.log(`Serwer działa na porcie ${port}`);
 });
+
+app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }
+}));

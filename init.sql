@@ -6,6 +6,7 @@ CREATE TABLE Category (
 CREATE TABLE Product (
                          id INT AUTO_INCREMENT PRIMARY KEY,
                          name VARCHAR(255) NOT NULL,
+                         quantity INT NOT NULL,
                          description TEXT NOT NULL,
                          unit_price DECIMAL(10,2) NOT NULL,
                          unit_weight DECIMAL(10,2) NOT NULL,
@@ -22,6 +23,7 @@ CREATE TABLE `Order` (
                          id INT AUTO_INCREMENT PRIMARY KEY,
                          approval_date DATETIME NULL,
                          status_id INT NOT NULL,
+                         quantity INT NOT NULL,
                          user_name VARCHAR(255) NOT NULL,
                          email VARCHAR(255) NOT NULL,
                          phone_number VARCHAR(20) NOT NULL,
@@ -41,10 +43,10 @@ INSERT INTO Category (name) VALUES ('Elektronika'), ('Książki'), ('Odzież');
 
 INSERT INTO OrderStatus (name) VALUES ('NIEZATWIERDZONE'), ('ZATWIERDZONE'), ('ANULOWANE'), ('ZREALIZOWANE');
 
-INSERT INTO Product (name, description, unit_price, unit_weight, category_id) VALUES
-                                                                                  ('Laptop', 'Nowoczesny laptop', 3000.00, 2.5, 1),
-                                                                                  ('Smartfon', 'Smartfon z dużym ekranem', 1500.00, 0.5, 1),
-                                                                                  ('Książka', 'Bestsellerowa powieść', 50.00, 0.3, 2);
+INSERT INTO Product (name, description, quantity, unit_price, unit_weight, category_id) VALUES
+                                                                                  ('Laptop', 'Nowoczesny laptop', 10, 3000.00, 2.5, 1),
+                                                                                  ('Smartfon', 'Smartfon z dużym ekranem', 15, 1500.00, 0.5, 1),
+                                                                                  ('Książka', 'Bestsellerowa powieść', 5, 50.00, 0.3, 2);
 
 INSERT INTO `Order` (approval_date, status_id, user_name, email, phone_number) VALUES
     (NULL, 1, 'Jan Kowalski', 'jan@example.com', '123456789');
